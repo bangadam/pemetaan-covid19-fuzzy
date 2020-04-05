@@ -1,4 +1,4 @@
-<?php include 'koneksi.php'; ?>
+<?php include 'koneksi.php'; session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,31 +9,17 @@
 
   <!-- Latest compiled and minified CSS & JS -->
   <link rel="stylesheet" media="screen" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-   <!-- Load Leaflet from CDN -->
-   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-  crossorigin=""/>
   <script src="//code.jquery.com/jquery.js"></script>
-  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
-  integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
-  crossorigin=""></script>
-
-  <!-- Load Esri Leaflet from CDN -->
-  <script src="https://unpkg.com/esri-leaflet@2.3.3/dist/esri-leaflet.js"
-  integrity="sha512-cMQ5e58BDuu1pr9BQ/eGRn6HaR6Olh0ofcHFWe5XesdCITVuSBiBZZbhCijBe5ya238f/zMMRYIMIIg1jxv4sQ=="
-  crossorigin=""></script>
-
-
-  <!-- Load Esri Leaflet Geocoder from CDN -->
-  <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.3.2/dist/esri-leaflet-geocoder.css"
-    integrity="sha512-IM3Hs+feyi40yZhDH6kV8vQMg4Fh20s9OzInIIAc4nx7aMYMfo+IenRUekoYsHZqGkREUgx0VvlEsgm7nCDW9g=="
-    crossorigin="">
-  <script src="https://unpkg.com/esri-leaflet-geocoder@2.3.2/dist/esri-leaflet-geocoder.js"
-    integrity="sha512-8twnXcrOGP3WfMvjB0jS5pNigFuIWj4ALwWEgxhZ+mxvjF5/FBPVd5uAxqT8dd2kUmTVK9+yQJ4CmTmSg/sXAQ=="
-    crossorigin=""></script>
   <script src="//netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  </script>
   <style>
-    #mapid { height: 300px; }
+    .list-gejala li {
+      margin-bottom: 5px;
+    }
+
+    .list-gejala li input {
+      margin-top: 5px;
+    }
   </style>
 </head>
 
@@ -46,14 +32,27 @@
         <small>Cek deteksi dini virus covid 19 pada dirimu</small>
       </div>
     </div>
+    <?php
+      if ($_SESSION['pesan']) {
+          ?>
 
-    <form action="">
+    <div class="col-md-12">
+      <div class="alert alert-success">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        hasil test menunjukkan anda berstatus <b><?php echo $_SESSION['status']; ?></b>
+      </div>
+    </div>
+
+    <?php
+      } ?>
+    <form action="aksi.php?operasi=check-pasien" method="POST">
       <div class="col-md-12">
         <div class="panel panel-info">
           <div class="panel-heading">
             <h3 class="panel-title">Identitas diri</h3>
           </div>
           <div class="panel-body">
+            <a href="cek-persebaran.php" class="btn btn-primary">Cek persebaran virus corona</a>
             <div class="form-group">
               <label for="">Nama</label>
               <input type="text" name="nama_pasien" class="form-control" required>
@@ -81,67 +80,71 @@
           </div>
         </div>
 
-        
-        <div class="panel panel-default">
+
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title">Alamat sekarang / tinggal</h3>
+          </div>
           <div class="panel-body">
-          <div id="mapid"></div>
+            <div class="form-group">
+              <label for="">Provinsi <span style="color: red;font-weight: bold">(Wajib/Diisi)</span></label>
+              <input type="text" name="provinsi" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="">Kota <span style="color: red;font-weight: bold">(Wajib/Diisi)</span></label>
+              <input type="text" name="kota" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="">Kecamatan <span style="color: red;font-weight: bold">(Wajib/Diisi)</span></label>
+              <input type="text" name="kecamatan" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label for="">Desa/Kel <span style="color: red;font-weight: bold">(Wajib/Diisi)</span></label>
+              <input type="text" name="desa" class="form-control" required>
+            </div>
+
           </div>
         </div>
+
+
         <div class="panel panel-danger">
-            <div class="panel-heading">
-              <h3 class="panel-title">Deteksi Gejala</h3>
-            </div>
-            <div class="panel-body">
-              <div class="table-responsive">
-                <table class="table table-striped">
-                  <tbody>
-                  <?php
+          <div class="panel-heading">
+            <h3 class="panel-title">Deteksi Gejala</h3>
+          </div>
+          <div class="panel-body">
+            <ol class="list-gejala">
+              <?php
                   $result = $database->query('SELECT * FROM gejala');
-                  $no = 1;
+                  $no = 0;
                   while ($data = $result->fetch_object()) {
                       ?>
-                    <tr>
-                      <td><?php echo $data->nmgejala; ?></td>
-                      <td>:</td>
-                      <td>
-                            <input type="radio" name="gj-<?php echo $no; ?>" id="input" value="1">
-                            Ya
-                            <input type="radio" name="gj-<?php echo $no; ?>" id="input" value="2">
-                            Tidak
-                        </div>
-                      </td>
-                    </tr>
-                  <?php
+              <li>
+                <?php echo $data->nmgejala; ?> : <br>
+                <input type="radio" name="gj[<?php echo $data->id_gejala; ?>]" value="10">
+                Ya
+                <input type="radio" name="gj[<?php echo $data->id_gejala; ?>]" value="0">
+                Tidak
+              </li>
+              <hr>
+              <?php
                   ++$no;
                   } ?>
-                  </tbody>
-                </table>
-                
-              </div>
-            </div>
+            </ol>
+            </tbody>
+            </table>
+
+          </div>
         </div>
-        <button class="btn btn-primary btn-block">Check</button>
       </div>
-    </form>
+      <button class="btn btn-primary btn-block">Check</button>
   </div>
+  </form>
+  </div>
+
   <script>
-     var map = L.map('mapid').setView([-7.5517, 112.6325], 5);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
-
-var geocodeService = L.esri.Geocoding.geocodeService();
-
-map.on('click', function (e) {
-  geocodeService.reverse().latlng(e.latlng).run(function (error, result) {
-    if (error) {
-      return;
-    }
-
-    L.marker(result.latlng).addTo(map).bindPopup(result.address.Match_addr).openPopup();
-  });
-});
+    $(document).ready(function () {})
   </script>
 </body>
+
 </html>
