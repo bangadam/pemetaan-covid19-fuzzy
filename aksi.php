@@ -113,12 +113,14 @@ switch ($_GET['operasi']) {
       }
 
     break;
-    case 'getDataMarker':
-      $result = $database->query('SELECT * FROM markers');
+    case 'getDataMarkers':
+      $result = $database->query('SELECT * FROM markers GROUP BY lat, lon');
+      var_dump($result->fetch_array());
+      die();
 
-      // no break
-      default:
+    break;
   default:
-    // code...
+    die('error');
+
     break;
 }
