@@ -25,7 +25,7 @@
 
 <body>
 
-  <div class="container">
+  <div class="container" style="margin-bottom: 20px;">
     <div class="col-md-12">
       <div class="page-header">
         <h1>DETEKSI DINI COVID-19 ONLINE</h1>
@@ -33,7 +33,7 @@
       </div>
     </div>
     <?php
-      if ($_SESSION['pesan']) {
+      if ($_SESSION) {
           ?>
 
     <div class="col-md-12">
@@ -44,7 +44,9 @@
     </div>
 
     <?php
-      } ?>
+      }
+      session_destroy();
+      ?>
     <form action="aksi.php?operasi=check-pasien" method="POST">
       <div class="col-md-12">
         <div class="panel panel-info">

@@ -113,6 +113,11 @@ switch ($_GET['operasi']) {
       }
 
     break;
+    case 'getDataMarker':
+      $result = $database->query('SELECT * FROM markers');
+
+      // no break
+      default:
   default:
     // code...
     break;
