@@ -114,9 +114,37 @@ switch ($_GET['operasi']) {
 
     break;
     case 'getDataMarkers':
-      $result = $database->query('SELECT * FROM markers GROUP BY lat, lon');
-      var_dump($result->fetch_array());
-      die();
+      $result = $database->query("SELECT
+      markers.lat,
+      markers.long,
+      markers.name,
+      COUNT(NAME) AS total,
+      COUNT(CASE type WHEN 'negatif' then 1 else null end) AS negatif,
+      COUNT(CASE type WHEN 'ODR' then 1 else null end) AS odr,
+      COUNT(CASE type WHEN 'ODP' then 1 else null end) AS odp,
+      COUNT(CASE type WHEN 'PDP' then 1 else null end) AS pdp,
+      COUNT(CASE type WHEN 'POSITIF' then 1 else null end) AS positif
+  FROM
+      markers
+  GROUP BY NAME");
+      $items = [];
+      while ($data = $result->fetch_object()) {
+          $temp = [
+              $data->lat,
+              $data->long,
+              $data->name,
+              [
+                  'total' => $data->total,
+                  'ODR' => $data->odr,
+                  'ODP' => $data->odp,
+                  'PDP' => $data->pdp,
+                  'POSITIF' => $data->positif,
+              ],
+          ];
+          array_push($items, $temp);
+      }
+
+      echo json_encode($items);
 
     break;
   default:
