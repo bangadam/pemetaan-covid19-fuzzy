@@ -55,6 +55,8 @@
           </div>
           <div class="panel-body">
             <a href="cek-persebaran.php" class="btn btn-primary">Cek persebaran virus corona</a>
+            <a href="cek-pasien.php" class="btn btn-primary">Data pasien</a>
+            <a href="tambah_gejala.php" class="btn btn-primary">Tambah Gejala</a>
             <div class="form-group">
               <label for="">Nama</label>
               <input type="text" name="nama_pasien" class="form-control" required>
