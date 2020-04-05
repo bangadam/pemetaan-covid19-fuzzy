@@ -59,7 +59,7 @@
         url: "aksi.php?operasi=getDataMarkers",
         success: function name(data) {
           var item = JSON.parse(data);
-          var map = L.map('map').setView([-7.4664, 112.4338], 8);
+          var map = L.map('map').setView([-7.4664, 112.4338], 6);
 
           L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -68,7 +68,6 @@
           var markers = L.markerClusterGroup();
           for (var i = 0; i < item.length; i++) {
             var a = item[i];
-            console.log(a)
             var title = a[3];
             var marker = L.marker(new L.LatLng(a[0], a[1]), {
               title: title.total
